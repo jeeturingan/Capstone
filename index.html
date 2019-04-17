@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Lithophane Generator</title>
+    <link rel="stylesheet" href="css/main.css"> <!--our style sheet-->
+    <script src="js/three.js"></script>
+  </head>
+
+  <!--our Java Script-->
+  <script src="js/main.js"></script>
+
+  <body onload="initPage();">
+    <!--call function when page loaded-->
+    <h1 id="pageheading">Lithophane Generator</h1>
+    <img src="henry-vii-m.jpg" onclick="onImageClicked(event);">
+    <canvas id="outputcanvas" style="width:273px;height:480px"></canvas>
+
+    <script src="js/3dstuff.js"></script>
+
+    <form>
+      Max Size (mm): <input type="text" name="max_size"><br>
+      Thickness (mm): <input type="text" name="thickness"><br>
+      Border (mm): <input type="text" name="border"><br>
+      Thinnest Layer (mm): <input type="text" name="thinnest_layer"><br>
+      Vectors per Pixel: <input type="text" name="vector"><br>
+      Base/Stand depth: <input type="text" name="base"><br><br>
+    </form>
+
+    Output Dimension – between 1 mm and 1000 mm<br>
+    Thickness – between 1 mm and 100 mm<br>
+    Border Thickness – between 0 mm and Output Dimension / 2<br>
+    Thinnest layer – between 0.1 mm and Thickness In MM<br>
+    Vectors per pixel – between 1 and 5<br>
+    Base/Stand depth between -50 mm and 50 mm (negative sticks out the back)<br>
+
+  </body>
+</html>
