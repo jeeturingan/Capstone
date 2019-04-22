@@ -62,10 +62,25 @@ function onImageClicked(event) {
 
 function setLevels(heightData, width, height) {
  // TODO - create 3D data from height data
- lithoFace=new THREE.ParametricGeometry(getPoint, width, height);
+ var lithoFace=new THREE.ParametricGeometry(getPoint, width, height);
  var lithoMaterial = new THREE.MeshBasicMaterial( { color: 0x3030C0 });
  var lithoMesh = new THREE.Mesh (lithoFace ,lithoMaterial);
  scene.add(lithoMesh);
+
+ /*var geometry = new THREE.BoxGeometry( 30, 30, 30 );
+ var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+ var cube = new THREE.Mesh( geometry, material );
+ scene.add( cube );*/
+
+ function animate() {
+   requestAnimationFrame( animate );
+   //cube.rotation.x += 0.01;
+   //cube.rotation.y += 0.01;
+   controls.update();
+   renderer.render( scene, camera );
+ }
+
+ animate();
 }
 
 function getPoint(u,v) {
@@ -104,6 +119,7 @@ function saveSTL( geometry, name ){
 
  saveAs(blob, name + '.stl'); // add the .STL extension
 }
+
 function saveAs(blob,name) {
  var downloadLink = document.createElement("a");
  downloadLink.download = name;
