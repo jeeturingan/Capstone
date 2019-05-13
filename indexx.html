@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Javascript Test</title>
+    <!--our style sheet-->
+    <link rel="stylesheet" href="css/bootstrap.css">
+  </head>
+
+  <!--ThreeJS Java Scripts-->
+  <script src="js/three.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src="js/WebGL.js"></script>
+  <script src="js/stats.min.js"></script>
+  <script src="js/CurveExtras.js"></script>
+  <script src="js/Geometry.js"></script>
+  <script src="js/BufferGeometry.js"></script>
+  <script src="js/BufferAttribute.js"></script>
+  <script src="js/Vector3.js"></script>
+  <script src="js/ParametricGeometries.js"></script>
+
+  <body>
+    <!--call function when page loaded-->
+    <h1 id="pageheading">Javascript Test Page</h1>
+
+    <form type=get action="index.html">
+      <p class="text-primary">Plain Text: <input type="text" name="plain_text" id="plain_text"></p>
+      <font face="Braille"><p class="text-primary"  name="braille_code" id="braille_code">Plain Text</p></font>
+
+      <script>
+        function getParams()
+        {
+          var idx = document.URL.indexOf('?');
+          var params = new Array();
+          if (idx != -1)
+          {
+            var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+            for (var i=0; i<pairs.length; i++)
+            {
+              nameVal = pairs[i].split('=');
+              params[nameVal[0]] = nameVal[1];
+            }
+          }
+          return params;
+        }
+
+       params = getParams();
+       braille = unescape(params["plain_text"]);
+       var braille_array = [];
+       var i;
+
+       for (i=0; i < braille.length; i++)
+       {
+         braille_array[i] = braille.charAt(i);
+         if (braille.charAt(i) == "+")
+         {
+           braille_array[i] = " ";
+         }
+       }
+
+       braille2 = braille_array.join("");
+
+       document.getElementById("braille_code").innerText = braille2;
+       document.write("Braille = " + braille + "<br>");
+
+      </script>
+
+      <button class="btn btn-primary" type=submit value="Submit" >Translate</button>
+      <button class = "btn btn-primary" value="Refresh Page" onClick="window.location.reload();">Refresh</button>
+    </form>
+
+  </body>
+</html>

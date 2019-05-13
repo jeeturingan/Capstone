@@ -25,6 +25,23 @@
     <!--call function when page loaded-->
     <h1 id="pageheading">Lithophane Generator</h1>
 
+    <form>
+      Max Size (1mm-1000mm): <input type="text" name="max_size" id="max_size"><br>
+      Thickness (1mm-100mm): <input type="text" name="thickness"><br>
+      Border (0mm and Output Dimension/2): <input type="text" name="border"><br>
+      Thinnest Layer (0.1mm and Thickness in mm): <input type="text" name="thinnest_layer"><br>
+      Vectors per Pixel (1 and 5): <input type="text" name="vector"><br>
+      Base/Stand depth (-50 mm and 50 mm): <input type="text" name="base"><br><br>
+    </form>
+
+    <form type=get action="index.html">
+      <p class="text-primary">Plain Text: <input type="text" name="plain_text" id="plain_text"></p>
+      <font face="Braille"><p class="text-primary"  name="braille_code" id="braille_code">Plain Text</p></font>
+
+      <button class="btn btn-primary" type=submit value="Submit" >Translate</button>
+      <button class = "btn btn-primary" value="Refresh Page" onClick="window.location.reload();">Refresh</button>
+    </form>
+
     <script>
     if ( WEBGL.isWebGLAvailable() === false )
     {
@@ -48,48 +65,36 @@
     renderer.gammaOutput = true;
 
     var controls = new THREE.OrbitControls( camera );
-    controls.update();
+    //controls.update();
 
     var ambient = new THREE.AmbientLight( 0xffffff, 0.1 );
     scene.add( ambient );
 
     var pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
-    pointLight.position.set( 0, 20, 100 );
+    pointLight.position.set( 0, 0, 100 );
     scene.add( pointLight );
 
-    function animate() { requestAnimationFrame( animate );
+    function animate() {
+      requestAnimationFrame( animate );
       //cube.rotation.x += 0.01;
       //cube.rotation.y += 0.01;
-      controls.update(); renderer.render( scene, camera );
+      controls.update();
+      renderer.render( scene, camera );
     }
 
     animate();
-
     </script>
 
     <!--our Java Script-->
+
+
+    <script src="braille.js"></script>
     <script src="main.js"></script>
 
     <!--<img src="henry-vii-m.jpg" onclick="onImageClicked(event);">
     <canvas id="outputcanvas" style="width:273px;height:480px"></canvas>-->
     <img src="download.jpg" onclick="onImageClicked(event);">
     <canvas id="outputcanvas" style="width:448px;height:541px"></canvas>
-
-    <form>
-      Max Size (mm): <input type="text" name="max_size" id="max_size"><br>
-      Thickness (mm): <input type="text" name="thickness"><br>
-      Border (mm): <input type="text" name="border"><br>
-      Thinnest Layer (mm): <input type="text" name="thinnest_layer"><br>
-      Vectors per Pixel: <input type="text" name="vector"><br>
-      Base/Stand depth: <input type="text" name="base"><br><br>
-    </form>
-
-    Output Dimension – between 1 mm and 1000 mm<br>
-    Thickness – between 1 mm and 100 mm<br>
-    Border Thickness – between 0 mm and Output Dimension / 2<br>
-    Thinnest layer – between 0.1 mm and Thickness In MM<br>
-    Vectors per pixel – between 1 and 5<br>
-    Base/Stand depth between -50 mm and 50 mm (negative sticks out the back)<br>
 
   </body>
 </html>

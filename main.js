@@ -68,14 +68,14 @@ function setLevels(heightData, width, height) {
  lithoMesh.rotation.y += 180 * Math.PI / 180;
  lithoMesh.receiveShadow = true;
  scene.add( lithoMesh );
- 
+
  var geometry = new THREE.PlaneGeometry( width+200, height+200 );
  var material = new THREE.MeshPhongMaterial( {color: 0xffffff } );
  var plane = new THREE.Mesh( geometry, material );
  plane.position.set( 0, -100, -500 );
  plane.receiveShadow = true;
- scene.add( plane );
- 
+ //scene.add( plane );
+
  function getPoint(u, v, target)
  {
     // use the height data collected from the image
@@ -83,7 +83,7 @@ function setLevels(heightData, width, height) {
     var x=width*u;
     var y=height*v;
     var z=heightData[width*y+x];
- 
+
     target.set(x, y, z);
     //return new THREE.Vector3 (x,y,heightData[width*y+x]);
  }
