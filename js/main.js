@@ -4,6 +4,20 @@ function initPage() { // called on page load
   headingText.innerHTML = "2D to 3D Lithophane Generator™";
 }
 
+function previewFile() {
+  var preview = document.querySelector('img');
+  var file    = document.querySelector('input[type=file]').files[0];
+  var reader  = new FileReader();
+
+  reader.addEventListener("load", function () {
+    preview.src = reader.result;
+  }, false);
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
+
 function onImageClicked(event) {
   var image = event.target; // the image that was clicked
 
@@ -26,6 +40,11 @@ function onImageClicked(event) {
   var numb_pixels=pixels.length/4; // the number of pixels to process
   var height_data = new Float32Array(numb_pixels); // an array to hold the result data
   var image_pixel_offset=0;// current image pixel being processed
+  var minThicknessInMM = 0.1;
+  var ThickInMM = 3; //repeat
+  var maxOutputHeight = ThickInMM - minThicknessInMM;
+  var zScale = maxOutputHeight / 255;
+  var vertexPixelRatio = 4; //repeat
 
   // go through each pixel in the image
   for (var height_pixel_index = 0; height_pixel_index < numb_pixels; height_pixel_index++)
@@ -40,7 +59,8 @@ function onImageClicked(event) {
      var negative_average = (red_channel * 0.299 + green_channel * 0.587 + blue_channel * 0.114);
 
      // store value in height array
-     height_data[height_pixel_index]=negative_average;
+     //height_data[height_pixel_index]=negative_average;
+     height_data[height_pixel_index] = (minThicknessInMM + (negative_average * zScale)) * vertexPixelRatio; // store scaled value in height array
 
      // store value back in canvas for display of negative monochrome image
      pixels[image_pixel_offset] = negative_average;
@@ -55,10 +75,9 @@ function onImageClicked(event) {
   canvas_context.putImageData(image_data, 0, 0, 0, 0, image_data.width, image_data.height);
 
   // create 3D lithophane using height data
+  //setLevels(height_data, image_data.height, image_data.width);
   setLevels(height_data, image_data.width, image_data.height);
-
 }
-
 
 function setLevels(heightData, width, height) {
   // TODO - create 3D data from height data
@@ -79,22 +98,7 @@ function setLevels(heightData, width, height) {
   lithoPart.rotation.z += 180 * Math.PI / 180;
   //lithoPart.rotation.y += 180 * Math.PI / 180;
   lithoPart.receiveLight = true;
-  scene.add(lithoPart);
-
-  var geometry = new THREE.PlaneGeometry (width + 200, height + 200);
-  var material = new THREE.MeshPhongMaterial ({ color: 0xffffff });
-  var plane = new THREE.Mesh(geometry, material);
-  plane.position.set(0, -100, -500);
-  plane.receiveShadow = true;
-
-  var vertexPixelRatio = 4;
-  var baseWidth = 300*vertexPixelRatio;
-  var divisions = Math.floor(baseWidth / (vertexPixelRatio * 10)); // 10mm grid
-  var groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080, wireframe: true , side: THREE.DoubleSide});
-  var groundPlane = new THREE.PlaneGeometry(baseWidth, baseWidth, divisions, divisions);
-  groundPlane.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.05));// move down a fraction so that object shows properly from underneath the floor
-  var ground = new THREE.Mesh(groundPlane, groundMaterial);
-  this.scene.add(ground);
+  //scene.add(lithoPart);
 
   function processVectors(heightData, width, height) {
     var i, j;
@@ -256,30 +260,200 @@ function setLevels(heightData, width, height) {
       toGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0 - toGeometry.boundingBox.min.z));
   }
 
+  mergeGeoms(lithoPart, processBraille (plain_text), lithoBraille);
+
+  var lithoBrailleMat = new THREE.MeshPhongMaterial({color: 0x001040});
+  var lithoBrailleMesh = new THREE.Mesh(lithoBraille, lithoBrailleMat);
+  scene.add (lithoBrailleMesh);
+
+
   animate();
 }
 
-
-
-function vertexAsString(vert) {
-  return vert.x + " " + vert.y + " " + vert.z;
+//Braille Translation
+function getParams() {
+  var idx = document.URL.indexOf('?');
+  var params = new Array();
+  if (idx != -1)
+  {
+    var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+    for (var i=0; i<pairs.length; i++)
+    {
+      nameVal = pairs[i].split('=');
+      params[nameVal[0]] = nameVal[1];
+    }
+  }
+  return params;
 }
 
-function generateSTL(geometry, name) {
-  var vertices = geometry.vertices;
-  var faces = geometry.faces;
-  var stl = "solid " + name + "\n";
-  for (var i = 0; i < faces.length; i++) {
-    stl += ("facet normal " + vertexAsString(faces[i].normal) + " \n");
-    stl += ("outer loop \n");
-    stl += "vertex " + vertexAsString(vertices[faces[i].a]) + " \n";
-    stl += "vertex " + vertexAsString(vertices[faces[i].b]) + " \n";
-    stl += "vertex " + vertexAsString(vertices[faces[i].c]) + " \n";
-    stl += ("endloop \n");
-    stl += ("endfacet \n");
+function mergeGeoms(objOne, objTwo, mergedGeom) {
+  objOne.updateMatrix(); // as needed
+  mergedGeom.merge(objOne.geometry, objOne.matrix);
+
+  objTwo.updateMatrix(); // as needed
+  mergedGeom.merge(objTwo.geometry, objTwo.matrix);
+}
+
+function processBrailleDot(x, y, z) {
+  var dotGeom = new THREE.CylinderGeometry( 2, 2, 5, 32 );
+  var dotMat = new THREE.MeshPhongMaterial( {color: 0xffff00} );
+  brailleDot = new THREE.Mesh( dotGeom, dotMat );
+  brailleDot.position.set(x, y, z);
+  brailleDot.rotation.x += 90 * Math.PI / 180;
+  return brailleDot;
+}
+
+function processBraille (plainText) {
+  params = getParams();
+  braille = unescape(params["plain_text"]);
+  var braille_array = [];
+  var braille_dot = [];
+  var i;
+  var col = 0, row = 0;
+  var x_coords = [-140, -133, -140, -133, -140, -133];
+  var y_coords = [-210, -210, -217, -217, -224, -224];
+  var z_coords = [11, 11, 11, 11, 11, 11];
+
+  var finalGeom = new THREE.Geometry();
+
+  var tabGeom = new THREE.BoxGeometry( 314.7, 60, 12 );
+  var tabMat = new THREE.MeshPhongMaterial( {color: 0x001040} );
+  var tabCube = new THREE.Mesh( tabGeom, tabMat );
+  tabCube.position.y = -229;
+  tabCube.position.z = 6;
+  scene.add( tabCube );
+
+  for (i=0; i < braille.length; i++)
+  {
+    braille_array[i] = braille.charAt(i);
+    if (braille.charAt(i) == "+")
+    {
+      braille_array[i] = " ";
+    }
+
+    else
+    {
+      col++;
+      if (row <= 1)
+      {
+        if (braille.toLowerCase().charAt(i) == "a" || braille.toLowerCase().charAt(i) == "b" ||
+        braille.toLowerCase().charAt(i) == "c" || braille.toLowerCase().charAt(i) == "d" ||
+        braille.toLowerCase().charAt(i) == "e" || braille.toLowerCase().charAt(i) == "f" ||
+        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
+        braille.toLowerCase().charAt(i) == "k" || braille.toLowerCase().charAt(i) == "l" ||
+        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
+        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "p" ||
+        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
+        braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
+        braille.toLowerCase().charAt(i) == "x" || braille.toLowerCase().charAt(i) == "y" ||
+        braille.toLowerCase().charAt(i) == "z")
+        {
+          mergeGeoms(processBrailleDot(x_coords[0], y_coords[0], z_coords[0]), tabCube, finalGeom);
+        }
+
+        if (braille.toLowerCase().charAt(i) == "c" || braille.toLowerCase().charAt(i) == "d" ||
+        braille.toLowerCase().charAt(i) == "f" || braille.toLowerCase().charAt(i) == "g" ||
+        braille.toLowerCase().charAt(i) == "i" || braille.toLowerCase().charAt(i) == "j" ||
+        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
+        braille.toLowerCase().charAt(i) == "p" || braille.toLowerCase().charAt(i) == "q" ||
+        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
+        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "x" ||
+        braille.toLowerCase().charAt(i) == "y")
+        {
+          mergeGeoms(processBrailleDot(x_coords[1], y_coords[1], z_coords[1]), tabCube, finalGeom);
+        }
+
+        if (braille.toLowerCase().charAt(i) == "b" || braille.toLowerCase().charAt(i) == "f" ||
+        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
+        braille.toLowerCase().charAt(i) == "i" || braille.toLowerCase().charAt(i) == "j" ||
+        braille.toLowerCase().charAt(i) == "l" || braille.toLowerCase().charAt(i) == "p" ||
+        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
+        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
+        braille.toLowerCase().charAt(i) == "v" || braille.toLowerCase().charAt(i) == "w")
+        {
+          mergeGeoms(processBrailleDot(x_coords[2], y_coords[2], z_coords[2]), tabCube, finalGeom);
+        }
+
+        if (braille.toLowerCase().charAt(i) == "d" || braille.toLowerCase().charAt(i) == "e" ||
+        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
+        braille.toLowerCase().charAt(i) == "j" || braille.toLowerCase().charAt(i) == "n" ||
+        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "q" ||
+        braille.toLowerCase().charAt(i) == "r" || braille.toLowerCase().charAt(i) == "t" ||
+        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "y" ||
+        braille.toLowerCase().charAt(i) == "z")
+        {
+          mergeGeoms(processBrailleDot(x_coords[3], y_coords[3], z_coords[3]), tabCube, finalGeom);
+        }
+
+        if (braille.toLowerCase().charAt(i) == "k" || braille.toLowerCase().charAt(i) == "l" ||
+        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
+        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "p" ||
+        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
+        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
+        braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
+        braille.toLowerCase().charAt(i) == "x" || braille.toLowerCase().charAt(i) == "y" ||
+        braille.toLowerCase().charAt(i) == "z")
+        {
+          mergeGeoms(processBrailleDot(x_coords[4], y_coords[4], z_coords[4]), tabCube, finalGeom);
+        }
+
+        if (braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
+        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "x" ||
+        braille.toLowerCase().charAt(i) == "y" || braille.toLowerCase().charAt(i) == "z")
+        {
+          mergeGeoms(processBrailleDot(x_coords[5], y_coords[5], z_coords[5]), tabCube, finalGeom);
+        }
+
+        if (col == 19)
+        {
+          for (var a = 0; a < 6; a++)
+          {
+            if (a == 0 || a == 2 || a == 4)
+              x_coords[a] = -140;
+
+            else if (a == 1 || a == 3 || a == 5)
+              x_coords[a] = -133;
+          }
+
+          for (var b = 0; b < 6; b++)
+          {
+            y_coords[b] -= 21;
+          }
+
+          col = 0;
+          row++;
+        }
+
+        else if (col != 19)
+        {
+          x_coords[0] += 15;
+          x_coords[1] += 15;
+          x_coords[2] += 15;
+          x_coords[3] += 15;
+          x_coords[4] += 15;
+          x_coords[5] += 15;
+          console.log(col);
+        }
+      }
+    }
   }
-  stl += ("endsolid " + name + "\n");
-  return stl;
+
+  braille2 = braille_array.join("");
+  //braillText.innerText = braille2;
+  //document.write("Braille = " + braille + "<br>");
+
+  var brailleMat = new THREE.MeshPhongMaterial({color: 0x001040});
+  var brailleCode = new THREE.Mesh(finalGeom, brailleMat);
+  //scene.add(brailleCode);
+
+  return brailleCode;
+
+}
+
+//Download as STL
+function downloadBraille3D()
+{
+  saveSTL(lithoBraille, "Braille3D");
 }
 
 function saveSTL(geometry, name) {
@@ -309,4 +483,25 @@ function saveAs(blob, name) {
     document.body.appendChild(downloadLink);
   }
   downloadLink.click();
+}
+
+function generateSTL(geometry, name) {
+  var vertices = geometry.vertices;
+  var faces = geometry.faces;
+  var stl = "solid " + name + "\n";
+  for (var i = 0; i < faces.length; i++) {
+    stl += ("facet normal " + vertexAsString(faces[i].normal) + " \n");
+    stl += ("outer loop \n");
+    stl += "vertex " + vertexAsString(vertices[faces[i].a]) + " \n";
+    stl += "vertex " + vertexAsString(vertices[faces[i].b]) + " \n";
+    stl += "vertex " + vertexAsString(vertices[faces[i].c]) + " \n";
+    stl += ("endloop \n");
+    stl += ("endfacet \n");
+  }
+  stl += ("endsolid " + name + "\n");
+  return stl;
+}
+
+function vertexAsString(vert) {
+  return vert.x + " " + vert.y + " " + vert.z;
 }
