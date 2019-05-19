@@ -3,72 +3,83 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Javascript Test</title>
+    <title>Javascript LithoGen Tester</title>
     <!--our style sheet-->
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap.css">
   </head>
 
   <!--ThreeJS Java Scripts-->
-  <script src="js/three.js"></script>
-  <script src="js/OrbitControls.js"></script>
-  <script src="js/WebGL.js"></script>
-  <script src="js/stats.min.js"></script>
-  <script src="js/CurveExtras.js"></script>
-  <script src="js/Geometry.js"></script>
-  <script src="js/BufferGeometry.js"></script>
-  <script src="js/BufferAttribute.js"></script>
-  <script src="js/Vector3.js"></script>
-  <script src="js/ParametricGeometries.js"></script>
+  <script src="js/three/three.min.js"></script>
+  <script src="js/three/controls/TrackballControls.js"></script>
+  <script src="js/FileSaver.js"></script>
+  <script src="js/3dprocks.js"></script>
+  <script src="js/libs/angular.js/angular.min.js"></script>
+  <script src="js/app.js"></script>
 
   <body>
     <!--call function when page loaded-->
-    <h1 id="pageheading">Javascript Test Page</h1>
+    <h1 id="pageheading">Javascript LithoGen Test #2</h1>
+    <div class="panel panel-default">
+        <!--<div class="panel-heading">
+          <strong>{{tab.tabTitle(1)}}</strong>
+          <small>{{tab.tabHint(1)}}</small>
+        </div>-->
 
-    <form type=get action="index.html">
-      <p class="text-primary">Plain Text: <input type="text" name="plain_text" id="plain_text"></p>
-      <font face="Braille"><p class="text-primary"  name="braille_code" id="braille_code">Plain Text</p></font>
+        <div class="panel-body">
+            <h4 >Select Files</h4>
+            <input type="file" id="js-upload-files" multiple onchange="angular.element(this).scope().fileDrop(this.files);">
 
-      <script>
-        function getParams()
-        {
-          var idx = document.URL.indexOf('?');
-          var params = new Array();
-          if (idx != -1)
-          {
-            var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
-            for (var i=0; i<pairs.length; i++)
-            {
-              nameVal = pairs[i].split('=');
-              params[nameVal[0]] = nameVal[1];
-            }
-          }
-          return params;
-        }
+            <!--<h4>Or Drag and Drop here.</h4>
+            <div class="well" style="overflow-x: auto; overflow-y: auto;" >
+                <div class="upload-drop-zone" id="droptarget">
+                  Drop Here
+                </div>
+            </div>
 
-       params = getParams();
-       braille = unescape(params["plain_text"]);
-       var braille_array = [];
-       var i;
+            <div class="progress">
+                <div class="progress-bar progress-bar-info  progress-bar-striped active" role="progressbar"  aria-valuenow="{{loadProgress}}" aria-valuemin="0" aria-valuemax="100" ng-style="{width : ( loadProgress + '%' ) }">[Load Status]</div>
+            </div>
 
-       for (i=0; i < braille.length; i++)
-       {
-         braille_array[i] = braille.charAt(i);
-         if (braille.charAt(i) == "+")
-         {
-           braille_array[i] = " ";
-         }
-       }
+            <div class="js-upload-finished">
+                <h3>Processed Files</h3>
+                <div class="list-group">
+                    <a ng-repeat="file in files" href="#" ng-click="lithoapp.fileClicked(tab,file)" class="list-group-item list-group-item-success">
+                        <span class="badge alert-success pull-right">{{lithoapp.fileIsSelected(file)?lithoapp.statusMessage('Selected'):''}}</span>{{file.name}}</a>
+                </div>
+            </div>-->
+        </div>
 
-       braille2 = braille_array.join("");
+        <div class="panel panel-default">
+          <script src="3dprocks.js">initPage();</script>
+            <div class="panel-heading"><strong>{{tab.tabTitle(2)}}</strong> <small>{{tab.tabHint(2)}}</small></div>
+            <div class="panel-body" >
 
-       document.getElementById("braille_code").innerText = braille2;
-       document.write("Braille = " + braille + "<br>");
-
-      </script>
-
-      <button class="btn btn-primary" type=submit value="Submit" >Translate</button>
-      <button class = "btn btn-primary" value="Refresh Page" onClick="window.location.reload();">Refresh</button>
-    </form>
+                <div class="well" >
+                    <div id="threedcanvas" style="height: {{getWindowHeight()+'px'}}"  >
+                        <canvas id="CompatibilityCanvas"> </canvas>
+                    </div>
+                </div>
+                <div id="viewButtons" >
+                    <button ng-click="lithoapp.triggerRefresh();" class="btn btn-primary pull-left" >Refresh</button>
+                    <button ng-click="lithoapp.triggerDownload();" class="btn btn-primary pull-right">Download</button>
+                </div>
+                <div class="progress"  >
+                    <div class="progress-bar progress-bar-info  progress-bar-striped active" role="progressbar"  aria-valuenow="{{modelProgress}}"
+                         aria-valuemin="0" aria-valuemax="100" ng-style="{width : ( modelProgress + '%' ) }">
+                        {{modelStatus}}
+                    </div>
+                </div>
+                <div class="well" style="overflow-x: auto; overflow-y: hidden;" >
+                    <div  style="display: block;height: 100px;width: {{layout.modelForms.length * 145 + 'px'}}" >
+                        <button ng-click="lithoapp.selectform($index);" class="btn formthumb"  ng-class="{ 'btn-primary' :lithoapp.isSelected($index)} " ng-repeat="form in layout.modelForms">
+                            <image style="text-align: center;width: 120px;height: 80px" ng-src="{{lithoapp.formImage($index)}}"  >
+                            <p style="text-align: center;margin: 1px" >{{form.title}}</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
   </body>
 </html>
