@@ -1,150 +1,150 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Lithophane Generator Prototype</title>
-    <!--our style sheet-->
-    <link rel="stylesheet" href="css/main.css">
-  </head>
+<!DOCTYPE html>
+<html style="background-color: #f7f7f9">
 
-  <!--ThreeJS Java Scripts-->
-  <script src="js/threejs/three.js"></script>
-  <script src="js/threejs/OrbitControls.js"></script>
-  <script src="js/threejs/TrackballControls.js"></script>
-  <script src="js/threejs/WebGL.js"></script>
+<head>
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/slideshow.css">
+</head>
 
-  <script src="js/threejs/stats.min.js"></script>
-  <script src="js/threejs/CurveExtras.js"></script>
-  <script src="js/threejs/Geometry.js"></script>
-  <script src="js/threejs/BufferGeometry.js"></script>
-  <script src="js/threejs/BufferAttribute.js"></script>
-  <script src="js/threejs/Vector3.js"></script>
-  <script src="js/threejs/ParametricGeometries.js"></script>
+<title>3D Braille</title>
+<body>
+<!--  Navbar -->
+	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 
-  <!--our Java Script-->
-  <script src="js/main.js"></script>
-
-  <body onload="initPage();">
-    <!--call function when page loaded-->
-    <h1 id="pageheading">Lithophane Generator</h1>
-
-    <form>
-      Max Size (1mm-1000mm): <input type="text" name="max_size" id="max_size"><br>
-      Thickness (1mm-100mm): <input type="text" name="thickness"><br>
-      Border (0mm and Output Dimension/2): <input type="text" name="border"><br>
-      Thinnest Layer (0.1mm and Thickness in mm): <input type="text" name="thinnest_layer"><br>
-      Vectors per Pixel (1 and 5): <input type="text" name="vector"><br>
-      Base/Stand depth (-50 mm and 50 mm): <input type="text" name="base"><br><br>
-    </form>
-
-    <form type=get action="index.html">
-      <p class="text-primary">Plain Text: <input type="text" name="plain_text" id="plain_text"></p>
-      <font face="Braille"><p class="text-primary" name="braille_code" id="braille_code">Plain Text</p></font>
-
-      <!--<button class="btn btn-primary" type=submit value="Submit" id ="btnTranslate"
-      onclick="processBraille(document.getElementById('plain_text').value, document.getElementById("braille_code"))">Translate</button>
-      <button class = "btn btn-primary" value="Refresh Page" onClick="window.location.reload();">Refresh</button>-->
-    </form>
-
-    <script>
-      if ( WEBGL.isWebGLAvailable() === false )
-      {
-        document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-      }
-
-      var plain_text = document.getElementById('plain_text').value;
-      var braille_text = document.getElementById('braille_code');
-
-      var lithoBraille = new THREE.Geometry();
-
-      var scene = new THREE.Scene();
-      scene.background = new THREE.Color( 0xf2f2f2 );
-
-      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-      //camera.position.z = 5;
-      camera.position.set (0, 0, 100);
-      //camera.rotation.x += 180 * Math.PI / 180;
-
-      var renderer = new THREE.WebGLRenderer();
-      renderer.setSize( 1000, 500 );
-      document.body.appendChild( renderer.domElement );
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer.gammaInput = true;
-      renderer.gammaOutput = true;
-
-      var controls = new THREE.TrackballControls( camera );
-      //controls.update();
-      controls.rotateSpeed = 2;
-      controls.zoomSpeed = 2;
-      controls.panSpeed = 2;
-      controls.noZoom = false;
-      controls.noPan = false;
-      controls.staticMoving = true;
-      controls.dynamicDampingFactor = 0.3;
-      controls.keys = [ 65, 83, 68 ];
-      controls.addEventListener( 'change', render );
-
-      var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
-      spotLight.position.set(-1000, 1000, 1000);
-      spotLight.castShadow = false;
-      scene.add(spotLight);
-      var pointLight = new THREE.PointLight(0xffffff, 1, 0);
-      pointLight.position.set(3000, -4000, 3500);
-      scene.add(pointLight);
-
-      var addBackLights=true;
-      if (addBackLights)
-      {
-          var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
-          spotLight.position.set(-1000, 1000, -1000);
-          spotLight.castShadow = false;
-          scene.add(spotLight);
-          var pointLight = new THREE.PointLight(0xffffff, 1, 0);
-          pointLight.position.set(3000, -4000, -3500);
-          pointLight.castShadow = false;
-          scene.add(pointLight);
-      }
-
-      var vertexPixelRatio = 4;
-      var baseWidth = 300*vertexPixelRatio;
-      var divisions = Math.floor(baseWidth / (vertexPixelRatio * 10)); // 10mm grid
-      var groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080, wireframe: true , side: THREE.DoubleSide});
-      var groundPlane = new THREE.PlaneGeometry(baseWidth, baseWidth, divisions, divisions);
-      groundPlane.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.05));// move down a fraction so that object shows properly from underneath the floor
-      var ground = new THREE.Mesh(groundPlane, groundMaterial);
-      scene.add(ground);
-
-      render();
-      animate();
-
-      function animate() {
-        requestAnimationFrame( animate );
-        //cube.rotation.x += 0.01;
-        //cube.rotation.y += 0.01;
-        controls.update();
-        renderer.render( scene, camera );
-      }
-
-      function render() {
-        renderer.render( scene, camera );
-      }
-
-    </script>
+		  <a class="navbar-brand" href="index.html"></a>
+		  <img src="images/logo_1.png" width="190" height="60">
+		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+		    <span class="navbar-toggler-icon"></span>
+		  </button>
 
 
-    <!--<script src="js/braille.js"></script>-->
+		  <div class="collapse navbar-collapse" id="navbarColor01">
+		    <ul class="navbar-nav mr-auto">
+		      <li class="nav-item active">
+		        <a class="nav-link" href="index.html">Home<span class="sr-only">(current)</span></a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="about.html">About</a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="manual.html">Manual</a>
+		       </li>
+		     	<li class="nav-item">
+		        <a class="nav-link" href="braille3d.html">Configurator</a>
+		      </li>
+		    </ul>
+		    <form class="form-inline my-2 my-lg-0">
+		      <!--<input class="form-control mr-sm-2" type="text" placeholder="Search">-->
+          <a class="btn btn-secondary my-2 my-sm-0" href="login.html">Login</a>
+		      <!--<a href="login.html"><button class="btn btn-secondary my-2 my-sm-0" type="submit">Login</button></a>-->
+          &nbsp;
+		      <a class="btn btn-secondary my-2 my-sm-0" href="register.html">Register</a>
+		    </form>
+		  </div>
+		</nav>
 
-    <!--<img src="pictures/henry-vii-m.jpg" onclick="onImageClicked(event);">
-    <canvas id="outputcanvas" style="width:273px;height:480px"></canvas>-->
+<!-- Slideshow -->
+<div class="jumbotron">
+	  <!--<h1 class="display-3">*Slideshow</h1> -->
 
-    <input type="file" id="js-upload-files" onchange="previewFile()">
-    <img src="" onclick="onImageClicked(event);">
-    <!--<img src="pictures/dogs.jpg" onclick="onImageClicked(event);">-->
-    <canvas id="outputcanvas" style="heigh:480px;width:768px"></canvas>
+	<!-- Slideshow container -->
+	<div class="slideshow-container">
 
-    <button class="btn btn-primary" type=submit value="Submit" id ="btnTranslate"
-    onclick="downloadBraille3D()">Download as STL</button>
-  </body>
+	  <!-- Full-width images with number and caption text -->
+	  <div class="mySlides ">
+	    <div class="numbertext">1 / 4</div>
+	    <img src="images/samples/3d_1.png" width="1000" height="400">
+	    <div class="text">3D Storyboard</div>
+	  </div>
+
+	  <div class="mySlides fade">
+	    <div class="numbertext">2 / 4</div>
+	    <img src="images/samples/3d_2.PNG"  width="1000" height="400">
+	    <div class="text">3D Storyboard</div>
+	  </div>
+
+	  <div class="mySlides fade">
+	    <div class="numbertext">3 / 4</div>
+	    <img src="images/pictures/Blind4.png"  width="1000" height="400">
+	    <div class="text">3D Storyboard</div>
+	  </div>
+
+    <div class="mySlides fade">
+      <div class="numbertext">4 / 4</div>
+      <img src="images/pictures/Braille7.jpg"  width="1000" height="400">
+      <div class="text">3D Storyboard</div>
+    </div>
+
+
+	  <!-- Next and previous buttons -->
+	  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+	  <a class="next" onclick="plusSlides(1)">&#10095;</a>
+	</div>
+	<br>
+
+	<!-- The dots/circles -->
+	<div style="text-align:center">
+	  <span class="dot" onclick="currentSlide(1)"></span>
+	  <span class="dot" onclick="currentSlide(2)"></span>
+	  <span class="dot" onclick="currentSlide(3)"></span>
+    <span class="dot" onclick="currentSlide(4)"></span>
+	</div>
+
+	 <!-- Javascript -->
+	<script type="text/javascript">
+	var slideIndex = 0;
+	showSlides();
+
+	function showSlides() {
+	  var i;
+	  var slides = document.getElementsByClassName("mySlides");
+	  for (i = 0; i < slides.length; i++) {
+	    slides[i].style.display = "none";
+	  }
+	  slideIndex++;
+	  if (slideIndex > slides.length) {slideIndex = 1}
+	  slides[slideIndex-1].style.display = "block";
+	  setTimeout(showSlides, 2000); // Change image every 2 seconds
+	}
+
+	</script>
+
+	<!-- ========= -->
+</br>
+
+	<div class ="container">
+		  <p class="lead">Welcome!</p></br>
+		  <p class="lead"> The 3D Braille System is created empowered by Java.
+        With the use of the system, users can create 3D Tactile Storyboard
+        using the object templates and users can also add braille text by
+        letting the system convert text to braille text. Users can also
+        customize their own storyboards by adjusting different settings on
+        the Manual tab. The system also has a converter that allows the
+        conversion of 2D images to 3D object models. The user can upload an
+        image and the system can convert it automatically. </p>
+		  <hr class="my-4">
+		  <p>The 3D Tactile Storyboard is made intentionally for those who are
+         visually impaired. The system aims to create more learning materials
+          for the visually impaired and as well as the teachers that will guide
+           and teach them.</p>
+		  <p class="lead">
+		    <a class="btn btn-primary btn-lg" href="about.html" role="button">Learn more</a>
+		  </p>
+
+		<!-- Manual & Configurator Button -->
+			<div style="text-align: right;">
+				<a href="manual.html"><button type="button" class="btn btn-outline-primary" >Manual</button></a>&nbsp;
+				<button type="button" class="btn btn-outline-secondary">Configurator</button>&nbsp;&nbsp;&nbsp;
+			</div>
+	</div>
+
+	</br>
+	</br>
+<hr/>
+	<div style="text-align: center;">
+	<footer> &copy; Copyright 2019 </footer> </div>
+
+</div>
+</body>
 </html>

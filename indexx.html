@@ -3,83 +3,141 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Javascript LithoGen Tester</title>
+    <title>Lithophane Generator Prototype</title>
     <!--our style sheet-->
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/main.css">
   </head>
 
   <!--ThreeJS Java Scripts-->
-  <script src="js/three/three.min.js"></script>
-  <script src="js/three/controls/TrackballControls.js"></script>
-  <script src="js/FileSaver.js"></script>
-  <script src="js/3dprocks.js"></script>
-  <script src="js/libs/angular.js/angular.min.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/threejs/three.js"></script>
+  <script src="js/threejs/OrbitControls.js"></script>
+  <script src="js/threejs/TrackballControls.js"></script>
+  <script src="js/threejs/WebGL.js"></script>
 
-  <body>
+  <script src="js/threejs/stats.min.js"></script>
+  <script src="js/threejs/CurveExtras.js"></script>
+  <script src="js/threejs/Geometry.js"></script>
+  <script src="js/threejs/BufferGeometry.js"></script>
+  <script src="js/threejs/BufferAttribute.js"></script>
+  <script src="js/threejs/Vector3.js"></script>
+  <script src="js/threejs/ParametricGeometries.js"></script>
+
+  <!--our Java Script-->
+  <script src="js/main.js"></script>
+
+  <body onload="initPage();">
     <!--call function when page loaded-->
-    <h1 id="pageheading">Javascript LithoGen Test #2</h1>
-    <div class="panel panel-default">
-        <!--<div class="panel-heading">
-          <strong>{{tab.tabTitle(1)}}</strong>
-          <small>{{tab.tabHint(1)}}</small>
-        </div>-->
+    <h1 id="pageheading">Lithophane Generator</h1>
 
-        <div class="panel-body">
-            <h4 >Select Files</h4>
-            <input type="file" id="js-upload-files" multiple onchange="angular.element(this).scope().fileDrop(this.files);">
+    <form>
+      Max Size (1mm-1000mm): <input type="text" name="max_size" id="max_size"><br>
+      Thickness (1mm-100mm): <input type="text" name="thickness"><br>
+      Border (0mm and Output Dimension/2): <input type="text" name="border"><br>
+      Thinnest Layer (0.1mm and Thickness in mm): <input type="text" name="thinnest_layer"><br>
+      Vectors per Pixel (1 and 5): <input type="text" name="vector"><br>
+      Base/Stand depth (-50 mm and 50 mm): <input type="text" name="base"><br><br>
+    </form>
 
-            <!--<h4>Or Drag and Drop here.</h4>
-            <div class="well" style="overflow-x: auto; overflow-y: auto;" >
-                <div class="upload-drop-zone" id="droptarget">
-                  Drop Here
-                </div>
-            </div>
+    <form type=get action="index.html">
+      <p class="text-primary">Plain Text: <input type="text" name="plain_text" id="plain_text"></p>
+      <font face="Braille"><p class="text-primary" name="braille_code" id="braille_code">Plain Text</p></font>
 
-            <div class="progress">
-                <div class="progress-bar progress-bar-info  progress-bar-striped active" role="progressbar"  aria-valuenow="{{loadProgress}}" aria-valuemin="0" aria-valuemax="100" ng-style="{width : ( loadProgress + '%' ) }">[Load Status]</div>
-            </div>
+      <!--<button class="btn btn-primary" type=submit value="Submit" id ="btnTranslate"
+      onclick="processBraille(document.getElementById('plain_text').value, document.getElementById("braille_code"))">Translate</button>
+      <button class = "btn btn-primary" value="Refresh Page" onClick="window.location.reload();">Refresh</button>-->
+    </form>
 
-            <div class="js-upload-finished">
-                <h3>Processed Files</h3>
-                <div class="list-group">
-                    <a ng-repeat="file in files" href="#" ng-click="lithoapp.fileClicked(tab,file)" class="list-group-item list-group-item-success">
-                        <span class="badge alert-success pull-right">{{lithoapp.fileIsSelected(file)?lithoapp.statusMessage('Selected'):''}}</span>{{file.name}}</a>
-                </div>
-            </div>-->
-        </div>
+    <script>
+      if ( WEBGL.isWebGLAvailable() === false )
+      {
+        document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+      }
 
-        <div class="panel panel-default">
-          <script src="3dprocks.js">initPage();</script>
-            <div class="panel-heading"><strong>{{tab.tabTitle(2)}}</strong> <small>{{tab.tabHint(2)}}</small></div>
-            <div class="panel-body" >
+      var plain_text = document.getElementById('plain_text').value;
+      var braille_text = document.getElementById('braille_code');
 
-                <div class="well" >
-                    <div id="threedcanvas" style="height: {{getWindowHeight()+'px'}}"  >
-                        <canvas id="CompatibilityCanvas"> </canvas>
-                    </div>
-                </div>
-                <div id="viewButtons" >
-                    <button ng-click="lithoapp.triggerRefresh();" class="btn btn-primary pull-left" >Refresh</button>
-                    <button ng-click="lithoapp.triggerDownload();" class="btn btn-primary pull-right">Download</button>
-                </div>
-                <div class="progress"  >
-                    <div class="progress-bar progress-bar-info  progress-bar-striped active" role="progressbar"  aria-valuenow="{{modelProgress}}"
-                         aria-valuemin="0" aria-valuemax="100" ng-style="{width : ( modelProgress + '%' ) }">
-                        {{modelStatus}}
-                    </div>
-                </div>
-                <div class="well" style="overflow-x: auto; overflow-y: hidden;" >
-                    <div  style="display: block;height: 100px;width: {{layout.modelForms.length * 145 + 'px'}}" >
-                        <button ng-click="lithoapp.selectform($index);" class="btn formthumb"  ng-class="{ 'btn-primary' :lithoapp.isSelected($index)} " ng-repeat="form in layout.modelForms">
-                            <image style="text-align: center;width: 120px;height: 80px" ng-src="{{lithoapp.formImage($index)}}"  >
-                            <p style="text-align: center;margin: 1px" >{{form.title}}</p>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      var lithoBraille = new THREE.Geometry();
 
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color( 0xf2f2f2 );
+
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      //camera.position.z = 5;
+      camera.position.set (0, 0, 100);
+      //camera.rotation.x += 180 * Math.PI / 180;
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( 1000, 500 );
+      document.body.appendChild( renderer.domElement );
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.gammaInput = true;
+      renderer.gammaOutput = true;
+
+      var controls = new THREE.TrackballControls( camera );
+      //controls.update();
+      controls.rotateSpeed = 2;
+      controls.zoomSpeed = 2;
+      controls.panSpeed = 2;
+      controls.noZoom = false;
+      controls.noPan = false;
+      controls.staticMoving = true;
+      controls.dynamicDampingFactor = 0.3;
+      controls.keys = [ 65, 83, 68 ];
+      controls.addEventListener( 'change', render );
+
+      var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
+      spotLight.position.set(-1000, 1000, 1000);
+      spotLight.castShadow = false;
+      scene.add(spotLight);
+      var pointLight = new THREE.PointLight(0xffffff, 1, 0);
+      pointLight.position.set(3000, -4000, 3500);
+      scene.add(pointLight);
+
+      var addBackLights=true;
+      if (addBackLights)
+      {
+          var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
+          spotLight.position.set(-1000, 1000, -1000);
+          spotLight.castShadow = false;
+          scene.add(spotLight);
+          var pointLight = new THREE.PointLight(0xffffff, 1, 0);
+          pointLight.position.set(3000, -4000, -3500);
+          pointLight.castShadow = false;
+          scene.add(pointLight);
+      }
+
+      var vertexPixelRatio = 4;
+      var baseWidth = 300*vertexPixelRatio;
+      var divisions = Math.floor(baseWidth / (vertexPixelRatio * 10)); // 10mm grid
+      var groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080, wireframe: true , side: THREE.DoubleSide});
+      var groundPlane = new THREE.PlaneGeometry(baseWidth, baseWidth, divisions, divisions);
+      groundPlane.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.05));// move down a fraction so that object shows properly from underneath the floor
+      var ground = new THREE.Mesh(groundPlane, groundMaterial);
+      scene.add(ground);
+
+      render();
+      animate();
+
+      function animate() {
+        requestAnimationFrame( animate );
+        //cube.rotation.x += 0.01;
+        //cube.rotation.y += 0.01;
+        controls.update();
+        renderer.render( scene, camera );
+      }
+
+      function render() {
+        renderer.render( scene, camera );
+      }
+
+    </script>
+
+    <input type="file" id="js-upload-files" onchange="previewFile()">
+    <img src="" onclick="onImageClicked(event);">
+    <canvas id="outputcanvas" style="heigh:480px;width:768px"></canvas>
+
+    <button class="btn btn-primary" type=submit value="Submit" id ="btnTranslate"
+    onclick="downloadBraille3D()">Download as STL</button>
   </body>
 </html>

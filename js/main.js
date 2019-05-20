@@ -1,11 +1,11 @@
 function initPage() { // called on page load
   // find heading in document and change the displayed text
-  var headingText = document.getElementById('pageheading');
+  var headingText = document.getElementById('pageTitle');
   headingText.innerHTML = "2D to 3D Lithophane Generator™";
 }
 
 function previewFile() {
-  var preview = document.querySelector('img');
+  var preview = document.querySelector('#preview');
   var file    = document.querySelector('input[type=file]').files[0];
   var reader  = new FileReader();
 

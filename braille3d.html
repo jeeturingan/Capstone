@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html style="background-color: #f7f7f9">
+
+<head>
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+
+<title>3D Braille</title>
+
+<!--ThreeJS Java Scripts-->
+<script src="js/threejs/three.js"></script>
+<script src="js/threejs/OrbitControls.js"></script>
+<script src="js/threejs/TrackballControls.js"></script>
+<script src="js/threejs/WebGL.js"></script>
+
+<script src="js/threejs/stats.min.js"></script>
+<script src="js/threejs/CurveExtras.js"></script>
+<script src="js/threejs/Geometry.js"></script>
+<script src="js/threejs/BufferGeometry.js"></script>
+<script src="js/threejs/BufferAttribute.js"></script>
+<script src="js/threejs/Vector3.js"></script>
+<script src="js/threejs/ParametricGeometries.js"></script>
+
+<!--our Java Script-->
+<script src="js/main.js"></script>
+
+<body>
+  <div class="bgcolor">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary ">
+      <a class="navbar-brand" href="index.html"></a>
+      <img src="images/logo_1.png" width="190" height="60">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-items">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="manual.html">Manual</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="braille3d.html">Configurator<span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <!--<input class="form-control mr-sm-2" type="text" placeholder="Search">-->
+          <a href="login.html>"><button class="btn btn-secondary my-2 my-sm-0" type="submit">Login</button></a> &nbsp;
+          <a href="register.html"><button class="btn btn-secondary my-2 my-sm-0" type="submit">Register</button></a>
+        </form>
+      </div>
+    </nav>
+
+    <center>
+      <br>
+      <div class="jumbotron" style="height:100%; width:80%; background:#d9d9d9" onload="initPage();">
+        <h4 align="left" id="title">Braille 3D</h4>
+
+        <div class="form-group" align="left">
+          <label class="col-form-label" for="inputDefault">Default input</label>
+          <input type="text" class="form-control" placeholder="Default input" id="plain_text" style="width: 100%">
+          <p id="charCounter" align="right">100</p>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <img src="" onclick="onImageClicked(event);" id="preview">
+          </div>
+          <div class="col-6">
+            <canvas id="outputcanvas" style="heigh:480px;width:768px"></canvas>
+          </div>
+        </div>
+        <br>
+
+        <div id="scene3d">
+        </div>
+
+        <script>
+          if ( WEBGL.isWebGLAvailable() === false )
+          {
+            document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+          }
+
+          var plain_text = document.getElementById('plain_text').value;
+          var braille_text = document.getElementById('braille_code');
+          var canvas = document.getElementById( 'scene3d' );
+
+          var lithoBraille = new THREE.Geometry();
+
+          var scene = new THREE.Scene();
+          scene.background = new THREE.Color( 0xf2f2f2 );
+
+          var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+          //camera.position.z = 5;
+          camera.position.set (0, 0, 100);
+          //camera.rotation.x += 180 * Math.PI / 180;
+
+          var renderer = new THREE.WebGLRenderer();
+          renderer.setSize ( 1000, 500 );
+          //document.body.appendChild( renderer.domElement );
+          canvas.appendChild( renderer.domElement );
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.gammaInput = true;
+          renderer.gammaOutput = true;
+
+          var controls = new THREE.TrackballControls( camera );
+          //controls.update();
+          controls.rotateSpeed = 2;
+          controls.zoomSpeed = 2;
+          controls.panSpeed = 2;
+          controls.noZoom = false;
+          controls.noPan = false;
+          controls.staticMoving = true;
+          controls.dynamicDampingFactor = 0.3;
+          controls.keys = [ 65, 83, 68 ];
+          controls.addEventListener( 'change', render );
+
+          var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
+          spotLight.position.set(-1000, 1000, 1000);
+          spotLight.castShadow = false;
+          scene.add(spotLight);
+          var pointLight = new THREE.PointLight(0xffffff, 1, 0);
+          pointLight.position.set(3000, -4000, 3500);
+          scene.add(pointLight);
+
+          var addBackLights=true;
+          if (addBackLights)
+          {
+              var spotLight = new THREE.SpotLight(0xffffff, 1, 0);
+              spotLight.position.set(-1000, 1000, -1000);
+              spotLight.castShadow = false;
+              scene.add(spotLight);
+              var pointLight = new THREE.PointLight(0xffffff, 1, 0);
+              pointLight.position.set(3000, -4000, -3500);
+              pointLight.castShadow = false;
+              scene.add(pointLight);
+          }
+
+          var vertexPixelRatio = 4;
+          var baseWidth = 300*vertexPixelRatio;
+          var divisions = Math.floor(baseWidth / (vertexPixelRatio * 10)); // 10mm grid
+          var groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080, wireframe: true , side: THREE.DoubleSide});
+          var groundPlane = new THREE.PlaneGeometry(baseWidth, baseWidth, divisions, divisions);
+          groundPlane.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.05));// move down a fraction so that object shows properly from underneath the floor
+          var ground = new THREE.Mesh(groundPlane, groundMaterial);
+          scene.add(ground);
+
+          render();
+          animate();
+
+          function animate() {
+            requestAnimationFrame( animate );
+            //cube.rotation.x += 0.01;
+            //cube.rotation.y += 0.01;
+            controls.update();
+            renderer.render( scene, camera );
+          }
+
+          function render() {
+            renderer.render( scene, camera );
+          }
+        </script>
+
+        <input type="file" id="js-upload-files" onchange="previewFile()">
+        <button class="btn btn-primary" type=submit value="Submit" id ="btnDownload" onclick="downloadBraille3D()">Download as STL</button>
+
+      </div>
+    </center>
+
+    <div style="text-align: center;">
+      <footer> &copy; Copyright 2019 </footer>
+    </div>
+  </div>
+</body>
+
+</html>
