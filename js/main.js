@@ -19,6 +19,8 @@ function previewFile() {
 }
 
 function onImageClicked(event) {
+
+  console.log(plain_text);
   var image = event.target; // the image that was clicked
 
   // point at canvas element that will show image data
@@ -271,20 +273,6 @@ function setLevels(heightData, width, height) {
 }
 
 //Braille Translation
-function getParams() {
-  var idx = document.URL.indexOf('?');
-  var params = new Array();
-  if (idx != -1)
-  {
-    var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
-    for (var i=0; i<pairs.length; i++)
-    {
-      nameVal = pairs[i].split('=');
-      params[nameVal[0]] = nameVal[1];
-    }
-  }
-  return params;
-}
 
 function mergeGeoms(objOne, objTwo, mergedGeom) {
   objOne.updateMatrix(); // as needed
@@ -304,10 +292,8 @@ function processBrailleDot(x, y, z) {
 }
 
 function processBraille (plainText) {
-  params = getParams();
-  braille = unescape(params["plain_text"]);
-  var braille_array = [];
-  var braille_dot = [];
+  console.log(document.getElementById('plain_text').value);
+  braille = document.getElementById('plain_text').value.split('');
   var i;
   var col = 0, row = 0;
   var x_coords = [-140, -133, -140, -133, -140, -133];
@@ -325,10 +311,9 @@ function processBraille (plainText) {
 
   for (i=0; i < braille.length; i++)
   {
-    braille_array[i] = braille.charAt(i);
-    if (braille.charAt(i) == "+")
+    if (braille[i] == "+")
     {
-      braille_array[i] = " ";
+      braille[i] = " ";
     }
 
     else
@@ -336,70 +321,70 @@ function processBraille (plainText) {
       col++;
       if (row <= 1)
       {
-        if (braille.toLowerCase().charAt(i) == "a" || braille.toLowerCase().charAt(i) == "b" ||
-        braille.toLowerCase().charAt(i) == "c" || braille.toLowerCase().charAt(i) == "d" ||
-        braille.toLowerCase().charAt(i) == "e" || braille.toLowerCase().charAt(i) == "f" ||
-        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
-        braille.toLowerCase().charAt(i) == "k" || braille.toLowerCase().charAt(i) == "l" ||
-        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
-        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "p" ||
-        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
-        braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
-        braille.toLowerCase().charAt(i) == "x" || braille.toLowerCase().charAt(i) == "y" ||
-        braille.toLowerCase().charAt(i) == "z")
+        if (braille[i] == "a" || braille[i] == "b" ||
+        braille[i] == "c" || braille[i] == "d" ||
+        braille[i] == "e" || braille[i] == "f" ||
+        braille[i] == "g" || braille[i] == "h" ||
+        braille[i] == "k" || braille[i] == "l" ||
+        braille[i] == "m" || braille[i] == "n" ||
+        braille[i] == "o" || braille[i] == "p" ||
+        braille[i] == "q" || braille[i] == "r" ||
+        braille[i] == "u" || braille[i] == "v" ||
+        braille[i] == "x" || braille[i] == "y" ||
+        braille[i] == "z")
         {
           mergeGeoms(processBrailleDot(x_coords[0], y_coords[0], z_coords[0]), tabCube, finalGeom);
         }
 
-        if (braille.toLowerCase().charAt(i) == "c" || braille.toLowerCase().charAt(i) == "d" ||
-        braille.toLowerCase().charAt(i) == "f" || braille.toLowerCase().charAt(i) == "g" ||
-        braille.toLowerCase().charAt(i) == "i" || braille.toLowerCase().charAt(i) == "j" ||
-        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
-        braille.toLowerCase().charAt(i) == "p" || braille.toLowerCase().charAt(i) == "q" ||
-        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
-        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "x" ||
-        braille.toLowerCase().charAt(i) == "y")
+        if (braille[i] == "c" || braille[i] == "d" ||
+        braille[i] == "f" || braille[i] == "g" ||
+        braille[i] == "i" || braille[i] == "j" ||
+        braille[i] == "m" || braille[i] == "n" ||
+        braille[i] == "p" || braille[i] == "q" ||
+        braille[i] == "s" || braille[i] == "t" ||
+        braille[i] == "w" || braille[i] == "x" ||
+        braille[i] == "y")
         {
           mergeGeoms(processBrailleDot(x_coords[1], y_coords[1], z_coords[1]), tabCube, finalGeom);
         }
 
-        if (braille.toLowerCase().charAt(i) == "b" || braille.toLowerCase().charAt(i) == "f" ||
-        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
-        braille.toLowerCase().charAt(i) == "i" || braille.toLowerCase().charAt(i) == "j" ||
-        braille.toLowerCase().charAt(i) == "l" || braille.toLowerCase().charAt(i) == "p" ||
-        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
-        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
-        braille.toLowerCase().charAt(i) == "v" || braille.toLowerCase().charAt(i) == "w")
+        if (braille[i] == "b" || braille[i] == "f" ||
+        braille[i] == "g" || braille[i] == "h" ||
+        braille[i] == "i" || braille[i] == "j" ||
+        braille[i] == "l" || braille[i] == "p" ||
+        braille[i] == "q" || braille[i] == "r" ||
+        braille[i] == "s" || braille[i] == "t" ||
+        braille[i] == "v" || braille[i] == "w")
         {
           mergeGeoms(processBrailleDot(x_coords[2], y_coords[2], z_coords[2]), tabCube, finalGeom);
         }
 
-        if (braille.toLowerCase().charAt(i) == "d" || braille.toLowerCase().charAt(i) == "e" ||
-        braille.toLowerCase().charAt(i) == "g" || braille.toLowerCase().charAt(i) == "h" ||
-        braille.toLowerCase().charAt(i) == "j" || braille.toLowerCase().charAt(i) == "n" ||
-        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "q" ||
-        braille.toLowerCase().charAt(i) == "r" || braille.toLowerCase().charAt(i) == "t" ||
-        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "y" ||
-        braille.toLowerCase().charAt(i) == "z")
+        if (braille[i] == "d" || braille[i] == "e" ||
+        braille[i] == "g" || braille[i] == "h" ||
+        braille[i] == "j" || braille[i] == "n" ||
+        braille[i] == "o" || braille[i] == "q" ||
+        braille[i] == "r" || braille[i] == "t" ||
+        braille[i] == "w" || braille[i] == "y" ||
+        braille[i] == "z")
         {
           mergeGeoms(processBrailleDot(x_coords[3], y_coords[3], z_coords[3]), tabCube, finalGeom);
         }
 
-        if (braille.toLowerCase().charAt(i) == "k" || braille.toLowerCase().charAt(i) == "l" ||
-        braille.toLowerCase().charAt(i) == "m" || braille.toLowerCase().charAt(i) == "n" ||
-        braille.toLowerCase().charAt(i) == "o" || braille.toLowerCase().charAt(i) == "p" ||
-        braille.toLowerCase().charAt(i) == "q" || braille.toLowerCase().charAt(i) == "r" ||
-        braille.toLowerCase().charAt(i) == "s" || braille.toLowerCase().charAt(i) == "t" ||
-        braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
-        braille.toLowerCase().charAt(i) == "x" || braille.toLowerCase().charAt(i) == "y" ||
-        braille.toLowerCase().charAt(i) == "z")
+        if (braille[i] == "k" || braille[i] == "l" ||
+        braille[i] == "m" || braille[i] == "n" ||
+        braille[i] == "o" || braille[i] == "p" ||
+        braille[i] == "q" || braille[i] == "r" ||
+        braille[i] == "s" || braille[i] == "t" ||
+        braille[i] == "u" || braille[i] == "v" ||
+        braille[i] == "x" || braille[i] == "y" ||
+        braille[i] == "z")
         {
           mergeGeoms(processBrailleDot(x_coords[4], y_coords[4], z_coords[4]), tabCube, finalGeom);
         }
 
-        if (braille.toLowerCase().charAt(i) == "u" || braille.toLowerCase().charAt(i) == "v" ||
-        braille.toLowerCase().charAt(i) == "w" || braille.toLowerCase().charAt(i) == "x" ||
-        braille.toLowerCase().charAt(i) == "y" || braille.toLowerCase().charAt(i) == "z")
+        if (braille[i] == "u" || braille[i] == "v" ||
+        braille[i] == "w" || braille[i] == "x" ||
+        braille[i] == "y" || braille[i] == "z")
         {
           mergeGeoms(processBrailleDot(x_coords[5], y_coords[5], z_coords[5]), tabCube, finalGeom);
         }
@@ -432,15 +417,10 @@ function processBraille (plainText) {
           x_coords[3] += 15;
           x_coords[4] += 15;
           x_coords[5] += 15;
-          console.log(col);
         }
       }
     }
   }
-
-  braille2 = braille_array.join("");
-  //braillText.innerText = braille2;
-  //document.write("Braille = " + braille + "<br>");
 
   var brailleMat = new THREE.MeshPhongMaterial({color: 0x001040});
   var brailleCode = new THREE.Mesh(finalGeom, brailleMat);

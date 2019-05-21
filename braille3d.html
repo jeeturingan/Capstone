@@ -53,12 +53,12 @@
     <center>
       <br>
       <div class="jumbotron" style="height:100%; width:80%; background:#d9d9d9" onload="initPage();">
-        <h4 align="left" id="title">Braille 3D</h4>
+        <center><h4 id="title">Create your own 3D Braille !</h4></center>
 
         <div class="form-group" align="left">
-          <label class="col-form-label" for="inputDefault">Default input</label>
+          <label class="col-form-label" for="inputDefault">Input text to translate to Braille:</label>
           <input type="text" class="form-control" placeholder="Default input" id="plain_text" style="width: 100%">
-          <p id="charCounter" align="right">100</p>
+          <p id="charCounter" align="left">100</p>
         </div>
 
         <div class="row">
@@ -80,9 +80,11 @@
             document.body.appendChild( WEBGL.getWebGLErrorMessage() );
           }
 
-          var plain_text = document.getElementById('plain_text').value;
+          //var plain_text = document.getElementById('plain_text').value;
           var braille_text = document.getElementById('braille_code');
           var canvas = document.getElementById( 'scene3d' );
+
+          console.log(plain_text);
 
           var lithoBraille = new THREE.Geometry();
 
@@ -91,7 +93,7 @@
 
           var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
           //camera.position.z = 5;
-          camera.position.set (0, 0, 100);
+          camera.position.set (0, 0, 300);
           //camera.rotation.x += 180 * Math.PI / 180;
 
           var renderer = new THREE.WebGLRenderer();
